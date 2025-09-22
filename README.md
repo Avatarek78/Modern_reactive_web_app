@@ -1,7 +1,7 @@
 # Modern_reactive_web_app
 
 <!-- TOC -->
-  * [WebFlux](#1-webflux)
+  * [WebFlux](#F⃣-webflux)
   * [2️⃣ Project Reactor](#2-project-reactor)
   * [3️⃣ Svelte](#3-svelte)
   * [Jak to zapadá do sebe při striktním oddělení front-end a back-end](#jak-to-zapadá-do-sebe-při-striktním-oddělení-front-end-a-back-end)
