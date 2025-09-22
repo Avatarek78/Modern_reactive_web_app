@@ -1,4 +1,37 @@
 # Modern_reactive_web_app
+
+<!-- TOC -->
+  * [1️⃣ WebFlux](#1-webflux)
+  * [2️⃣ Project Reactor](#2-project-reactor)
+  * [3️⃣ Svelte](#3-svelte)
+  * [Jak to zapadá do sebe při striktním oddělení front-end a back-end](#jak-to-zapadá-do-sebe-při-striktním-oddělení-front-end-a-back-end)
+  * [Příklad architektury](#příklad-architektury)
+  * [1️⃣ Dnešní běžné kombinace pro oddělený FE/BE](#1-dnešní-běžné-kombinace-pro-oddělený-febe)
+  * [2️⃣ Co se stane s vaší současnou technologií](#2-co-se-stane-s-vaší-současnou-technologií)
+  * [3️⃣ Zásadní rozdíl v přístupu](#3-zásadní-rozdíl-v-přístupu)
+  * [4️⃣ WebSocket vs. REST](#4-websocket-vs-rest)
+  * [5️⃣ Typická moderní kombinace pro nový projekt](#5-typická-moderní-kombinace-pro-nový-projekt)
+  * [**Fáze 1 – Příprava backendu na API-first**](#fáze-1--příprava-backendu-na-api-first)
+  * [**Fáze 2 – Proof of Concept pro nový frontend**](#fáze-2--proof-of-concept-pro-nový-frontend)
+  * [**Fáze 3 – Paralelní přepis UI**](#fáze-3--paralelní-přepis-ui)
+  * [**Fáze 4 – Plný přechod a rozšíření**](#fáze-4--plný-přechod-a-rozšíření)
+  * [**Vizualizace postupu**](#vizualizace-postupu)
+  * [**FÁZE 1 – API-first příprava backendu**](#fáze-1--api-first-příprava-backendu)
+  * [**FÁZE 2 – Proof of Concept pro Svelte**](#fáze-2--proof-of-concept-pro-svelte)
+  * [**FÁZE 3 – Paralelní přepis UI**](#fáze-3--paralelní-přepis-ui-1)
+  * [**FÁZE 4 – Plný přechod a rozšíření**](#fáze-4--plný-přechod-a-rozšíření-1)
+  * [**Výsledná architektura**](#výsledná-architektura)
+  * [**Fáze 1 – Dnešní stav (JSP monolit)**](#fáze-1--dnešní-stav-jsp-monolit)
+  * [**Fáze 2 – Přidání API a první SPA modul**](#fáze-2--přidání-api-a-první-spa-modul)
+  * [**Fáze 3 – Paralelní běh starého a nového UI**](#fáze-3--paralelní-běh-starého-a-nového-ui)
+  * [**Fáze 4 – Plný přechod (oddělený FE/BE)**](#fáze-4--plný-přechod-oddělený-febe)
+  * [1️⃣ Klasické MVC (servlet) vs. WebFlux](#1-klasické-mvc-servlet-vs-webflux)
+  * [2️⃣ Jak to funguje v reaktivní aplikaci](#2-jak-to-funguje-v-reaktivní-aplikaci)
+  * [3️⃣ Kam session ukládat v produkci](#3-kam-session-ukládat-v-produkci)
+  * [4️⃣ Dopad na SPA aplikaci](#4-dopad-na-spa-aplikaci)
+<!-- TOC -->
+
+
 Jen výtah informací z ChatGPT ohledně toho jak nejlépe vytvořit moderní webovou aplikaci, kde je striktně rozdělený back-end a front-end.
 
 Pojďme si to rozplést, protože **WebFlux**, **Reactor** a **Svelte** se pohybují v úplně jiných vrstvách moderní webové aplikace, a i když spolu mohou spolupracovat, jejich role jsou odlišné.
