@@ -564,6 +564,90 @@ Díky tomu by i ne-technické vedení hned vidělo, *co* a *proč* se mění.
 
 > Ano prosím
 
-<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/cd3c6eb4-9def-4d03-b57a-da199a458cd6" />
 
+<img width="1024" height="1536" alt="image" src="https://github.com/user-attachments/assets/36417e80-7c89-4beb-b42b-8894d21be4bc" />
 
+> Jak pracuje reaktivní webová aplikace se session uživatele?
+
+V reaktivní webové aplikaci (např. Spring WebFlux) se **uživatelská session** řeší trochu jinak než v klasickém servletovém světě (Spring MVC), protože WebFlux neběží na `HttpSession` a servletovém API, ale na **neblokujícím reaktivním serveru** (Netty, Undertow, apod.).
+
+Tady je detailní rozbor:
+
+---
+
+## 1️⃣ Klasické MVC (servlet) vs. WebFlux
+
+| Vlastnost   | Spring MVC (`HttpSession`)                               | Spring WebFlux (`WebSession`)                           |
+| ----------- | -------------------------------------------------------- | ------------------------------------------------------- |
+| API         | `javax.servlet.http.HttpSession`                         | `org.springframework.web.server.WebSession`             |
+| Úložiště    | typicky v paměti serveru, případně v distribuované cache | defaultně v paměti, ale snadno rozšířitelné o Redis, DB |
+| Životnost   | řízená kontejnerem (Tomcat/Jetty)                        | řízená WebFlux runtime                                  |
+| Přístup     | synchronní metody (`getAttribute`, `setAttribute`)       | reaktivní API (`Mono<WebSession>`)                      |
+| Serializace | blokující                                                | neblokující / asynchronní                               |
+
+---
+
+## 2️⃣ Jak to funguje v reaktivní aplikaci
+
+* **Identifikace uživatele** probíhá stále přes **cookie** (např. `SESSION`), podobně jako v servlet světě.
+* Po přijetí požadavku WebFlux zavolá `WebSessionManager`, který:
+
+  1. Z cookie načte session ID.
+  2. Dohledá session v úložišti (paměť, Redis, ...).
+  3. Vrátí `Mono<WebSession>`.
+* V průběhu požadavku můžeš session **asynchronně číst a měnit**:
+
+  ```java
+  @GetMapping("/profile")
+  public Mono<String> profile(ServerWebExchange exchange) {
+      return exchange.getSession()
+          .map(webSession -> {
+              String username = (String) webSession.getAttribute("username");
+              return "Hello " + username;
+          });
+  }
+  ```
+* Na konci requestu WebFlux session **uloží zpět** (pokud byla změněna).
+
+---
+
+## 3️⃣ Kam session ukládat v produkci
+
+Protože reaktivní aplikace má často **více instancí** (škálování, mikroservisy), je lepší:
+
+* **Nepoužívat pouze in-memory** (každá instance má svůj store).
+* Použít **Spring Session** s:
+
+  * Redis (nejčastější)
+  * R2DBC (reaktivní DB)
+  * vlastní implementaci
+
+Příklad s Redis:
+
+```java
+dependencies {
+    implementation "org.springframework.session:spring-session-data-redis"
+}
+```
+
+```java
+@Configuration
+@EnableRedisWebSession
+public class SessionConfig {
+}
+```
+
+---
+
+## 4️⃣ Dopad na SPA aplikaci
+
+Pokud máš **striktní oddělení front-end / back-end** (např. SvelteKit ↔ Spring WebFlux):
+
+* Session můžeš stále používat (cookie-based).
+* Ale často se místo toho používá **JWT** (JSON Web Token) v `Authorization` hlavičce.
+* JWT nevyžaduje server-side session store → škálování je jednodušší.
+
+---
+
+💡 **Shrnutí:**
+Reaktivní aplikace stále může mít session, ale používá **`WebSession`** místo `HttpSession`. Funguje to asynchronně a úložiště je volitelné, v produkci se typicky používá Redis. U SPA projektů se však často místo session preferuje **token-based autentizace** (JWT).
